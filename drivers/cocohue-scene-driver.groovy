@@ -39,6 +39,7 @@ metadata {
     }
        
    preferences {
+        input(name: "enableAutoOff", type: "bool", title: "Enable auto-off of switch capability?", defaultValue: parent.settings?.enableAutoOffForNewScenes ? true : false)
         input(name: "enableDebug", type: "bool", title: "Enable debug logging", defaultValue: true)
         input(name: "enableDesc", type: "bool", title: "Enable descriptionText logging", defaultValue: true)
     }
@@ -62,6 +63,10 @@ def initialize() {
         log.debug "Debug logging will be automatically disabled in ${disableTime} seconds"
         runIn(disableTime, debugOff)
     }
+	if (enableAutoOff) {
+		log.debug "Turning scene off (enableAutoOff)"
+		doSendEvent('switch', 'off')
+	}
     refresh() // Get scene data
 }
 
@@ -101,6 +106,10 @@ def on() {
 
 def off() {
     logDebug("off()")
+	if (enableAutoOff) {
+        log.warn "No off() action available for scene $device.displayName when enableAutoOff is true"
+		return
+    }
     if (state.type == "GroupScene") {
         logDebug("Scene is GroupScene; turning off group $state.group")
         def dniParts = device.deviceNetworkId.split("/")
@@ -166,7 +175,10 @@ void parseSendCommandResponse(resp, data) {
     logDebug("Response from Bridge: ${resp.status}; data from app = $data")
     if (checkIfValidResponse(resp) && data?.attribute != null && data?.value != null) {
         logDebug("  Bridge response valid; running creating events")          
-        doSendEvent(data.attribute, data.value)
+		if (enableAutoOff && data.attribute == "switch") {
+			runIn(1, doSendEvent,[data: [data.attribute, "off"]])
+		}
+		doSendEvent(data.attribute, data.value)
     }
     else {
         logDebug("  Not creating events from map because not specified to do or Bridge response invalid")

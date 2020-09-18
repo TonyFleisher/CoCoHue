@@ -568,6 +568,7 @@ def pageSelectScenes() {
         }
         else {
             section("Manage Scenes") {
+				input(name: "enableAutoOffForNewScenes", type: "bool", title: "Enable AutoOff (act as momentary) for new scenes?")
                 input(name: "newScenes", type: "enum", title: "Select Hue scenes to add:",
                       multiple: true, options: arrNewScenes)
             }
@@ -677,6 +678,7 @@ def createNewSelectedSceneDevices() {
     bridge.clearScenesCache()
     //bridge.getAllScenes()
     app.removeSetting("newScenes")
+    app.removeSetting("enableAutoOffForNewScenes")
     state.remove("sceneFullNames")
 }
 
