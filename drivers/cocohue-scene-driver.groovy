@@ -38,7 +38,7 @@ metadata {
    }
        
    preferences {
-        input(name: "enableAutoOff", type: "bool", title: "Enable auto-off of switch capability?", defaultValue: parent.settings?.enableAutoOffForNewScenes ? true : false)
+      input(name: "enableAutoOff", type: "bool", title: "Enable auto-off of switch capability?", defaultValue: parent.settings?.enableAutoOffForNewScenes ? true : false)
       input(name: "enableDebug", type: "bool", title: "Enable debug logging", defaultValue: true)
       input(name: "enableDesc", type: "bool", title: "Enable descriptionText logging", defaultValue: true)
     }
