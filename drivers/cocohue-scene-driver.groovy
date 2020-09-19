@@ -38,7 +38,7 @@ metadata {
    }
        
    preferences {
-      input(name: "enableAutoOff", type: "bool", title: "Enable auto-off of switch capability?", defaultValue: parent.settings?.enableAutoOffForNewScenes ? true : false)
+      input(name: "enableAutoOff", type: "bool", title: "Enable auto-off of switch capability?", defaultValue: false)
       input(name: "enableDebug", type: "bool", title: "Enable debug logging", defaultValue: true)
       input(name: "enableDesc", type: "bool", title: "Enable descriptionText logging", defaultValue: true)
     }
@@ -61,10 +61,6 @@ def initialize() {
    if (enableDebug) {
       log.debug "Debug logging will be automatically disabled in ${disableTime} seconds"
       runIn(disableTime, debugOff)
-   }
-   if (enableAutoOff) {
-      log.debug "Turning scene off (enableAutoOff)"
-      doSendEvent('switch', 'off')
    }
    refresh() // Get scene data
 }
@@ -177,6 +173,7 @@ void parseSendCommandResponse(resp, data) {
       logDebug("  Bridge response valid; running creating events")          
       doSendEvent(data.attribute, data.value)
       if (enableAutoOff && data.attribute == "switch") {
+         logDebug("autoOff is enabled; scheduling off event")
          runIn(1, doSendEvent,[data: [data.attribute, "off"]])
       }
    }

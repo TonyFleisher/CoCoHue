@@ -590,7 +590,9 @@ def pageSelectScenes() {
       }
       else {
          section("Manage Scenes") {
-               input(name: "enableAutoOffForNewScenes", type: "bool", title: "Enable AutoOff (act as momentary) for new scenes?")
+               paragraph("If you want the new scenes to act like momentary switches, enable auto off. " +
+         	    "When this is not enabled, the default behavior is for the scene device to remain on and for the off command to turn off the lights in the group.")
+               input(name: "enableAutoOffForNewScenes", type: "bool", title: "Enable auto off (act as momentary) for new scenes?")
                input(name: "newScenes", type: "enum", title: "Select Hue scenes to add:",
                      multiple: true, options: arrNewScenes)
          }
@@ -690,6 +692,10 @@ def createNewSelectedSceneDevices() {
                def devDNI = "CCH/${state.bridgeID}/Scene/${it}"
                def devProps = [name: (state.sceneFullNames?.get(it) ?: sc.name)]
                def dev = addChildDevice(childNamespace, driverName, devDNI, null, devProps)
+			   if (enableAutoOffForNewScenes) {
+				  logDebug("enableAutoOffForNewScenes; updating new scene device")
+                  dev.updateSetting('enableAutoOff', [value:"true", type:"bool"])
+			   }
          } catch (Exception ex) {
                log.error("Unable to create new scene device for $it: $ex")
          }
