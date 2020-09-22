@@ -517,6 +517,7 @@ void parseSendCommandResponse(resp, data) {
       createEventsFromMap(data)
       if ((data.containsKey("on") || data.containsKey("bri")) && settings["updateBulbs"]) {
          parent.updateMemberBulbStatesFromGroup(data, state.memberBulbs, device.getDeviceNetworkId().endsWith('/0'))
+         parent.updateScenesForGroup(getHueDeviceNumber(), device.deviceNetworkId, "switch", "off")
       }
    }
    else {

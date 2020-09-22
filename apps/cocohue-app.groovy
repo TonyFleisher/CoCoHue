@@ -989,6 +989,25 @@ Boolean getIsAnyGroupMemberBulbOn(groupDevice) {
    }
  }
 
+/**
+ * Find devices for scenes with the given groupId and send even with the specified attribute and value.
+ * If excludeDNI is provided, leave that device unchanged.
+ * Intended to be used from Scenes and Groups to ensure that at most one scene for each group is on at a time.
+ * @param groupId - Hue group id for update
+ * @param excludeDNI - DNI of device to skip, even if it is in the given group
+ * @param attribute - attribute to set
+ * @param value - value to set
+ */
+void updateScenesForGroup(groupId, excludeDNI, attribute, value) {
+   getChildDevices().findAll { it.getDeviceNetworkId() != excludeDNI \
+      && it.getDeviceNetworkId().startsWith("CCH/${state.bridgeID}/Scene/") \
+      && it.getHueGroupId() == groupId \
+      && it.getHueSceneType() == "GroupScene"}.each {
+         logDebug("updateScenesFromGroupScene found ${it.getDeviceNetworkId()}")
+		 it.doSendEvent(attribute, value)
+      }
+}
+
 def appButtonHandler(btn) {
    switch(btn) {
       case "btnBulbRefresh":

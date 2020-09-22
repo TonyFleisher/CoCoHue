@@ -83,6 +83,14 @@ def getHueDeviceNumber() {
    return device.deviceNetworkId.split("/")[3]
 }
 
+def getHueGroupId() {
+   return state.group
+}
+
+def getHueSceneType() {
+   return state.type
+}
+
 def on() {    
    logDebug("Turning on scene...")
    def data = parent.getBridgeData()
@@ -166,6 +174,9 @@ void parseSendCommandResponse(resp, data) {
    if (checkIfValidResponse(resp) && data?.attribute != null && data?.value != null) {
       logDebug("  Bridge response valid; running creating events")          
       doSendEvent(data.attribute, data.value)
+      if (data.attribute == "switch" && state.type == "GroupScene") {
+         parent.updateScenesForGroup(state.group, device.deviceNetworkId, "switch", "off")
+      }
    }
    else {
       logDebug("  Not creating events from map because not specified to do or Bridge response invalid")
